@@ -599,7 +599,11 @@
     document.getElementById('minha-mes').textContent = `${MESES[m]} ${y}`;
 
     const ccDespesas = getCartaoDespesasDoMes(y, m);
-    const totalR = md.receitas.reduce((s,i)=>s+i.val,0);
+
+    // Receitas recorrentes globais + do mês
+    const receitasRecorrentesMinha = ((userData.recorrentes_receitas||{})['minha']||[]);
+    const todasReceitasMinha = [...md.receitas, ...receitasRecorrentesMinha];
+    const totalR = todasReceitasMinha.reduce((s,i)=>s+i.val,0);
 
     // Despesas manuais ativas
     const despesasAtivas = md.despesas.filter(i=>isActive(i,y,m));
@@ -620,12 +624,16 @@
       <div class="metric"><div class="lbl">Saldo</div><div class="val ${saldo>=0?'v-green':'v-red'}">${fmt(saldo)}</div></div>`;
 
     // Receitas
-    document.getElementById('minha-receitas').innerHTML = !md.receitas.length
+    document.getElementById('minha-receitas').innerHTML = !todasReceitasMinha.length
       ? '<div class="empty">Nenhuma receita registrada</div>'
-      : md.receitas.map(i=>`<div class="exp-item">
+      : todasReceitasMinha.map(i=>`<div class="exp-item">
           <div class="exp-dot" style="background:var(--green)"></div>
-          <div class="exp-info"><div class="exp-name">${esc(i.desc)}</div></div>
+          <div class="exp-info">
+            <div class="exp-name">${esc(i.desc)}</div>
+            ${i.recorrente?'<div class="exp-tags"><span class="badge badge-recorrente">Recorrente</span></div>':''}
+          </div>
           <span class="exp-val" style="color:var(--green)">${fmt(i.val)}</span>
+          <button class="rec-btn ${i.recorrente?'rec-on':''}" title="${i.recorrente?'Desmarcar recorrente':'Fixar todo mês'}" onclick="toggleRecorrenteReceita('minha',${i.id})">↻</button>
           <button class="exp-del" onclick="delEntry('minha','receita',${i.id})">✕</button>
         </div>`).join('<div class="divider"></div>');
 
@@ -690,10 +698,11 @@
   }
 
   function renderBars(p, despesas, totalD) {
+    const bEl=document.getElementById(`${p}-bars`);
+    if(!bEl) return;
     const byCat={};
     despesas.forEach(i=>{byCat[i.cat]=(byCat[i.cat]||0)+i.val;});
     const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
-    const bEl=document.getElementById(`${p}-bars`);
     if(!cats.length){bEl.innerHTML='<div class="empty">Sem despesas ainda</div>';return;}
     const max=Math.max(...cats.map(c=>c[1]));
     bEl.innerHTML=cats.map(([cat,val])=>`<div class="bar-wrap">
@@ -705,9 +714,27 @@
   // Toggle recorrente em despesas manuais
   window.toggleRecorrente = async (p, id) => {
     const md = getMD(p);
-    const item = md.despesas.find(i=>i.id==id);
-    if (!item) return;
-    item.recorrente = !item.recorrente;
+    // Verifica se o item está nas despesas do mês atual
+    const itemIdx = md.despesas.findIndex(i=>i.id==id);
+    if (itemIdx !== -1) {
+      // Item está no mês atual — mover para recorrentes globais
+      const item = md.despesas[itemIdx];
+      md.despesas.splice(itemIdx, 1);
+      if(!userData.recorrentes) userData.recorrentes={};
+      if(!userData.recorrentes[p]) userData.recorrentes[p]=[];
+      userData.recorrentes[p].push({...item, recorrente:true});
+    } else {
+      // Item já está nos recorrentes globais — remover de lá (desmarcar)
+      if(userData.recorrentes && userData.recorrentes[p]) {
+        const rIdx = userData.recorrentes[p].findIndex(i=>i.id==id);
+        if(rIdx !== -1) {
+          const item = userData.recorrentes[p][rIdx];
+          userData.recorrentes[p].splice(rIdx, 1);
+          // Devolver ao mês atual sem flag recorrente
+          md.despesas.push({...item, recorrente:false});
+        }
+      }
+    }
     if(p==='minha') renderMinha(); else renderMae();
     await save();
   };
@@ -718,6 +745,32 @@
     if (!d) return;
     d.recorrente = !d.recorrente;
     renderMinha(); await save();
+  };
+
+  // Toggle recorrente em receitas
+  window.toggleRecorrenteReceita = async (p, id) => {
+    const md = getMD(p);
+    const itemIdx = md.receitas.findIndex(i=>i.id==id);
+    if (itemIdx !== -1) {
+      // Mover para recorrentes_receitas globais
+      const item = md.receitas[itemIdx];
+      md.receitas.splice(itemIdx, 1);
+      if(!userData.recorrentes_receitas) userData.recorrentes_receitas={};
+      if(!userData.recorrentes_receitas[p]) userData.recorrentes_receitas[p]=[];
+      userData.recorrentes_receitas[p].push({...item, recorrente:true});
+    } else {
+      // Desmarcar — tirar dos recorrentes e devolver ao mês atual
+      if(userData.recorrentes_receitas && userData.recorrentes_receitas[p]) {
+        const rIdx = userData.recorrentes_receitas[p].findIndex(i=>i.id==id);
+        if(rIdx !== -1) {
+          const item = userData.recorrentes_receitas[p][rIdx];
+          userData.recorrentes_receitas[p].splice(rIdx, 1);
+          md.receitas.push({...item, recorrente:false});
+        }
+      }
+    }
+    if(p==='minha') renderMinha(); else renderMae();
+    await save();
   };
 
   // ── RENDER CARTÕES ─────────────────────────────────────
@@ -807,9 +860,20 @@
       <div class="metric"><div class="lbl">Receitas + Guardado</div><div class="val v-green">${fmt(totalRComGuardado)}</div></div>
       <div class="metric"><div class="lbl">Despesas</div><div class="val v-red">${fmt(totalD)}</div></div>
       <div class="metric"><div class="lbl">Total que sobrou</div><div class="val ${totalSobrou>=0?'v-green':'v-red'}">${fmt(totalSobrou)}</div></div>`;
-    document.getElementById('mae-receitas').innerHTML=!md.receitas.length
+    const receitasRecorrentesMae = ((userData.recorrentes_receitas||{})['mae']||[]);
+    const todasReceitasMae = [...md.receitas, ...receitasRecorrentesMae];
+    document.getElementById('mae-receitas').innerHTML=!todasReceitasMae.length
       ?'<div class="empty">Nenhuma receita registrada</div>'
-      :md.receitas.map(i=>`<div class="exp-item"><div class="exp-dot" style="background:var(--green)"></div><div class="exp-info"><div class="exp-name">${esc(i.desc)}</div></div><span class="exp-val" style="color:var(--green)">${fmt(i.val)}</span><button class="exp-del" onclick="delEntry('mae','receita',${i.id})">✕</button></div>`).join('<div class="divider"></div>');
+      :todasReceitasMae.map(i=>`<div class="exp-item">
+          <div class="exp-dot" style="background:var(--green)"></div>
+          <div class="exp-info">
+            <div class="exp-name">${esc(i.desc)}</div>
+            ${i.recorrente?'<div class="exp-tags"><span class="badge badge-recorrente">Recorrente</span></div>':''}
+          </div>
+          <span class="exp-val" style="color:var(--green)">${fmt(i.val)}</span>
+          <button class="rec-btn ${i.recorrente?'rec-on':''}" title="${i.recorrente?'Desmarcar recorrente':'Fixar todo mês'}" onclick="toggleRecorrenteReceita('mae',${i.id})">↻</button>
+          <button class="exp-del" onclick="delEntry('mae','receita',${i.id})">✕</button>
+        </div>`).join('<div class="divider"></div>');
     document.getElementById('mae-despesas').innerHTML=!md.despesas.length
       ?'<div class="empty">Nenhuma despesa registrada</div>'
       :md.despesas.map(i=>renderExpItem(i,'mae')).join('<div class="divider"></div>');
@@ -920,8 +984,17 @@
 
   window.delEntry = async (p,tipo,id) => {
     const md=getMD(p);
-    if(tipo==='receita') md.receitas=md.receitas.filter(i=>i.id!=id);
-    else md.despesas=md.despesas.filter(i=>i.id!=id);
+    if(tipo==='receita') {
+      md.receitas=md.receitas.filter(i=>i.id!=id);
+      // Também remove de recorrentes_receitas se estiver lá
+      if(userData.recorrentes_receitas&&userData.recorrentes_receitas[p])
+        userData.recorrentes_receitas[p]=userData.recorrentes_receitas[p].filter(i=>i.id!=id);
+    } else {
+      md.despesas=md.despesas.filter(i=>i.id!=id);
+      // Também remove de recorrentes se estiver lá
+      if(userData.recorrentes&&userData.recorrentes[p])
+        userData.recorrentes[p]=userData.recorrentes[p].filter(i=>i.id!=id);
+    }
     if(p==='minha') renderMinha(); else renderMae();
     await save();
   };
