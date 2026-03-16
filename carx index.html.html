@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarX — Guia de Setup Grip</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #141414;
+    --panel: #1c1c1c;
+    --border: #2a2a2a;
+    --accent: #c9a84c;
+    --accent2: #b85c45;
+    --green: #5aab7e;
+    --text: #c4c4c4;
+    --text-strong: #e0e0e0;
+    --muted: #666;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .title-block h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text-strong);
+    letter-spacing: 0.02em;
+  }
+
+  .title-block p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    border: 1px solid #3a3020;
+    background: #1f1c14;
+    padding: 5px 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 22px 24px;
+  }
+
+  .card.full { grid-column: 1 / -1; }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  td {
+    padding: 10px 10px;
+    border-bottom: 1px solid #222;
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .param { color: var(--text); }
+
+  .old {
+    color: #8a4a3a;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+  }
+
+  .new {
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .dot-red { background: var(--accent2); opacity: 0.8; }
+  .dot-yellow { background: var(--accent); opacity: 0.8; }
+  .dot-green { background: var(--green); opacity: 0.8; }
+
+  .tip-box {
+    border-left: 2px solid #2e2820;
+    padding: 12px 14px;
+    margin-top: 14px;
+    font-size: 0.84rem;
+    line-height: 1.7;
+    color: #999;
+    background: #191919;
+  }
+
+  .tip-box strong { color: var(--text); font-weight: 600; }
+
+  .section-num {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--accent);
+    border: 1px solid #3a3020;
+    padding: 1px 6px;
+    letter-spacing: 0.05em;
+  }
+
+  footer {
+    margin-top: 40px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: #444;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  @media print {
+    body { background: #fff; color: #222; padding: 20px; }
+    .card { border-color: #ddd; background: #fafafa; }
+    .old { color: #a33; }
+    .new { color: #2a7a4f; }
+    .tip-box { background: #f5f5f5; border-left-color: #ccc; color: #555; }
+    .tip-box strong { color: #222; }
+    .card-title { color: #888; }
+    .title-block h1 { color: #222; }
+    .badge { color: #8a6a20; border-color: #ccc; background: #fafafa; }
+    .section-num { color: #8a6a20; border-color: #ccc; }
+    .muted { color: #888; }
+    footer { color: #aaa; border-color: #ddd; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <h1>CarX Grip Setup</h1>
+    <p>Guia de configuração para máximo grip — aplique em todos os carros</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <select id="mode-select" style="background:#1c1c1c;border:1px solid #2a2a2a;color:#c4c4c4;font-family:'DM Mono',monospace;font-size:0.78rem;padding:8px 14px;outline:none;cursor:pointer;letter-spacing:0.05em">
+      <option value="guia">📋 Guia Geral</option>
+      <option value="mapas">🏁 Config por Pista</option>
+    </select>
+    <div class="badge" id="badge-label">200SX · Slow Tune</div>
+  </div>
+</header>
+
+<div id="panel-guia">
+<div class="grid">
+
+  <!-- DIFERENCIAL -->
+  <div class="card">
+    <div class="card-title"><span class="section-num">01</span>Diferencial (LSD Embreagem)</div>
+    <table>
+      <tr><th>Parâmetro</th><th>Evitar</th><th>Grip</th></tr>
+      <tr>
+        <td class="param"><span class="dot dot-red"></span>Pré-carga</td>
+        <td class="old">~100 N·m</td>
+        <td class="new">20–50 N·m</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-red"></span>Blocagem aceleração</td>
+        <td class="old">80–100%</td>
+        <td class="new">25–40%</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Blocagem desacel.</td>
+        <td class="old">~20%</td>
+        <td class="new">10–15%</td>
+      </tr>
+    </table>
+    <div class="tip-box">
+      <strong>⚠ Principal causa de deslizamento:</strong> blocagem de aceleração alta trava as rodas traseiras juntas e joga o carro de lado.
+    </div>
+  </div>
+
+  <!-- PNEUS -->
+  <div class="card">
+    <div class="card-title"><span class="section-num">02</span>Pneus</div>
+    <table>
+      <tr><th>Parâmetro</th><th>Evitar</th><th>Grip</th></tr>
+      <tr>
+        <td class="param"><span class="dot dot-red"></span>Pressão dianteira</td>
+        <td class="old">>120 kPa</td>
+        <td class="new">100–110 kPa</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-green"></span>Pressão traseira</td>
+        <td class="old">—</td>
+        <td class="new">100 kPa ✓</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Tração dos pneus</td>
+        <td class="old">100% (se deslizar)</td>
+        <td class="new">110–120%</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Estiramento</td>
+        <td class="old">10–20 mm</td>
+        <td class="new">0 mm</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Largura entre-eixos</td>
+        <td class="old">valores altos</td>
+        <td class="new">0 ou 1</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- SUSPENSÃO -->
+  <div class="card full">
+    <div class="card-title"><span class="section-num">03</span>Suspensão</div>
+    <table>
+      <tr><th>Parâmetro</th><th>Eixo</th><th>Evitar</th><th>Grip</th></tr>
+      <tr>
+        <td class="param"><span class="dot dot-red"></span>Rigidez da mola</td>
+        <td>Dianteiro</td>
+        <td class="old">~50 kN/m</td>
+        <td class="new">80–100 kN/m</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-red"></span>Rigidez da mola</td>
+        <td>Traseiro</td>
+        <td class="old">~50 kN/m</td>
+        <td class="new">70–90 kN/m</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Barra de oscilação</td>
+        <td>Dianteiro</td>
+        <td class="old">&lt;120 kN/m</td>
+        <td class="new">140–160 kN/m</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Barra de oscilação</td>
+        <td>Traseiro</td>
+        <td class="old">&lt;110 kN/m</td>
+        <td class="new">130–150 kN/m</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-green"></span>Amortecedores</td>
+        <td>Ambos</td>
+        <td class="old">valores baixos</td>
+        <td class="new">+20–30% do padrão</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- CAMBAGEM -->
+  <div class="card">
+    <div class="card-title"><span class="section-num">04</span>Cambagem (Camber)</div>
+    <table>
+      <tr><th>Eixo</th><th>Grip ideal</th></tr>
+      <tr>
+        <td class="param">Dianteiro</td>
+        <td class="new">-1.0° a -1.5°</td>
+      </tr>
+      <tr>
+        <td class="param">Traseiro</td>
+        <td class="new">0° a -0.5°</td>
+      </tr>
+    </table>
+    <div class="tip-box">
+      Traseiro mais próximo de 0° firma o carro. Dianteiro com leve negativo melhora resposta nas curvas.
+    </div>
+  </div>
+
+  <!-- ESTERÇAMENTO E ACKERMANN -->
+  <div class="card full">
+    <div class="card-title"><span class="section-num">06</span>Ângulo de Esterçamento, Ackermann & Pino Mestre (KPI)</div>
+    <table>
+      <tr><th>Parâmetro</th><th>Valor</th><th>Por quê</th></tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Ângulo de esterçamento máx.</td>
+        <td class="new">40°–65°</td>
+        <td>Varia por carro — ângulo alto dá mais pivô mas exige Ackermann baixo</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Ackermann (%)</td>
+        <td class="new">10–20% (base)</td>
+        <td>Comece baixo e suba aos poucos — alto demais com ângulo alto faz o carro girar no próprio eixo</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Inclinação do pino mestre (KPI)</td>
+        <td class="new">4°–6°</td>
+        <td>Equilíbrio entre retorno do volante e leveza na direção — funciona em par com o caster</td>
+      </tr>
+    </table>
+    <div class="tip-box" style="margin-top:12px">
+      <strong>Ackermann alto (70–80%)</strong> → roda de dentro vira muito mais → carro pivota rápido → bom para <strong>back entry e drift</strong><br>
+      <strong>Ackermann baixo (10–20%)</strong> → comportamento mais neutro → bom ponto de partida para qualquer carro<br>
+      <strong>⚠ Ângulo alto + Ackermann alto</strong> → carro começa a <strong>girar no próprio eixo dianteiro</strong> nas curvas — evitar essa combinação<br><br>
+      <strong>KPI baixo (0–3°)</strong> → direção mais direta mas nervosa, pouco retorno natural<br>
+      <strong>KPI médio (4–6°)</strong> → ideal para grip — bom retorno sem pesar a direção<br>
+      <strong>KPI alto (8°+)</strong> → muita auto-centralização, útil para drift, pesado para grip<br><br>
+      <strong>Regra prática:</strong> KPI e caster trabalham juntos — com caster em 6–7, mantenha KPI em 4–6° para o par ideal.
+    </div>
+  </div>
+
+  <!-- MASSA E CENTRO DE GRAVIDADE -->
+  <div class="card full">
+    <div class="card-title"><span class="section-num">07</span>Massa & Centro de Gravidade</div>
+    <table>
+      <tr><th>Parâmetro</th><th>Valor</th><th>Por quê</th></tr>
+      <tr>
+        <td class="param"><span class="dot dot-green"></span>Massa</td>
+        <td class="new">Padrão do carro</td>
+        <td>Não mexa — altera toda a física. Cada carro tem seu peso ideal</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Transferência de peso</td>
+        <td class="new">30–40%</td>
+        <td>Valor alto (50%+) gera muito balanço e instabilidade na aceleração/frenagem</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-red"></span>Altura centro de gravidade</td>
+        <td class="new">10–15%</td>
+        <td>Quanto mais baixo, mais o carro fica colado no chão — impacto direto no grip em curvas</td>
+      </tr>
+    </table>
+    <div class="tip-box" style="margin-top:12px">
+      <strong>Centro de gravidade alto (25%+)</strong> → carro "rola" nas curvas e perde contato com o chão<br>
+      <strong>Transferência alta (50%+)</strong> → peso migra demais para frente/trás → traseiro solta na aceleração
+    </div>
+  </div>
+
+  <!-- MOTOR -->
+  <div class="card full">
+    <div class="card-title"><span class="section-num">08</span>Motor & Turbo</div>
+    <table>
+      <tr><th>Parâmetro</th><th>Evitar</th><th>Grip</th></tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Ajuste de motor</td>
+        <td class="old">10%+</td>
+        <td class="new">0–5%</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-red"></span>Torque máx. (rpm)</td>
+        <td class="old">6500+ rpm</td>
+        <td class="new">4500–5000 rpm</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Corte de giro</td>
+        <td class="old">8500+ rpm</td>
+        <td class="new">7500–8000 rpm</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-red"></span>Pressão do turbo</td>
+        <td class="old">1.28+ atm</td>
+        <td class="new">0.9–1.0 atm</td>
+      </tr>
+    </table>
+    <div class="tip-box" style="margin-top:12px">
+      <strong>⚠ Motor muito forte = rodas que não seguram:</strong> um 200SX original tem ~200cv — com 750cv+ as rodas têm quase 4x mais força do que foram projetadas para segurar.<br><br>
+      <strong>Pressão do turbo</strong> é o ajuste mais impactante — turbo alto entrega torque de forma explosiva e faz as rodas patinarem mesmo com tração em 120%.<br><br>
+      <strong>Tração dos pneus em motores fortes:</strong> em carros com muito torque, 110% pode deslizar mais do que 120% — o torque vence valores intermediários de forma irregular. Nesses casos teste direto em 120%.
+    </div>
+  </div>
+
+  <!-- KPI E CONVERGÊNCIA -->
+  <div class="card full">
+    <div class="card-title"><span class="section-num">09</span>Inclinação do Pino Mestre (KPI) & Convergência (Toe)</div>
+    <table>
+      <tr><th>Parâmetro</th><th>Eixo</th><th>Recomendado</th><th>Por quê</th></tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>KPI</td>
+        <td>Dianteiro</td>
+        <td class="new">4°–6°</td>
+        <td>Equilíbrio entre resposta e auto-centralização do volante</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-yellow"></span>Convergência (Toe)</td>
+        <td>Dianteiro</td>
+        <td class="new">-0.05 a -0.10°</td>
+        <td>Toe-out leve — melhora entrada de curva sem nervosismo em reta</td>
+      </tr>
+      <tr>
+        <td class="param"><span class="dot dot-green"></span>Convergência (Toe)</td>
+        <td>Traseiro</td>
+        <td class="new">+0.05 a +0.10°</td>
+        <td>Toe-in leve — firma o traseiro e evita que ele saia nas curvas</td>
+      </tr>
+    </table>
+    <div class="tip-box" style="margin-top:12px">
+      <strong>KPI baixo (0–3°)</strong> → direção direta mas nervosa, pouca auto-centralização<br>
+      <strong>KPI médio (4–6°)</strong> → ideal para grip — retorno natural do volante sem pesar<br>
+      <strong>KPI alto (8°+)</strong> → direção pesada, boa para drift, ruim para grip<br><br>
+      <strong>Toe dianteiro negativo (toe-out)</strong> → carro vira mais rápido na entrada da curva<br>
+      <strong>Toe traseiro positivo (toe-in)</strong> → traseiro estável, não solta nas curvas<br>
+      <strong>⚠ Escala do CarX:</strong> o toe vai de 0.01° — valores acima de ±0.20° já são exagerados e deixam o carro estranho
+    </div>
+  </div>
+
+  <!-- DICAS GERAIS -->
+  <div class="card">
+    <div class="card-title"><span class="section-num">05</span>Dicas Gerais</div>
+    <div class="tip-box" style="margin-top:0">
+      <strong>🔴 Erro comum:</strong> usar tração em 120% para compensar setup ruim — isso só mascara o problema.<br><br>
+      <strong>🟡 Ordem de ajuste:</strong><br>
+      1. Diferencial (blocagem)<br>
+      2. Rigidez das molas<br>
+      3. Pressão e tração dos pneus<br>
+      4. Cambagem<br>
+      5. Amortecedores (fino)<br><br>
+      <strong>🟢 Teste final:</strong> se o carro ficou bom, tente baixar a tração de volta a 100% — se ainda segurar, os ajustes foram efetivos.
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- PAINEL MAPAS -->
+<div id="panel-mapas" style="display:none">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+    <select id="track-select" style="background:#1c1c1c;border:1px solid #2a2a2a;color:#c4c4c4;font-family:'DM Mono',monospace;font-size:0.82rem;padding:9px 16px;outline:none;cursor:pointer;letter-spacing:0.05em;width:100%">
+      <option value="">— Selecione uma pista —</option>
+      <option value="geral">⬛ Geral (qualquer pista)</option>
+      <option value="seattle">🟦 RDC Seattle</option>
+      <option value="longbeach">🟨 Long Beach</option>
+      <option value="utah">🟩 Utah Motorsports</option>
+      <option value="stlouis">🟧 St. Louis</option>
+      <option value="irwindale">🟥 Irwindale / West Coast Arena</option>
+    </select>
+  </div>
+  <div id="track-result">
+    <div style="color:#444;font-family:'DM Mono',monospace;font-size:0.75rem;letter-spacing:0.1em;text-align:center;padding:48px 0">SELECIONE UMA PISTA ACIMA</div>
+  </div>
+</div>
+
+<footer>CarX Drift Racing Online · Guia Grip Setup · Use Ctrl+P para imprimir</footer>
+
+<script>
+const tracks = {
+  geral: {
+    nome: "Configuração Geral",
+    descricao: "Base universal para qualquer pista. Ajuste a partir daqui.",
+    tipo: "Meio termo — funciona em qualquer mapa",
+    configs: [
+      { param: "Diferencial (blocagem acel.)", val: "25–40%", obs: "Principal ajuste de estabilidade" },
+      { param: "Rigidez mola dianteira", val: "80–100 kN/m", obs: "Firma o carro no chão" },
+      { param: "Rigidez mola traseira", val: "70–90 kN/m", obs: "Estabilidade traseira" },
+      { param: "Pressão pneu dianteiro", val: "100–110 kPa", obs: "Contato máximo com o asfalto" },
+      { param: "Tração dos pneus", val: "110–120%", obs: "Sobe para 120% em motores fortes" },
+      { param: "Cambagem dianteira", val: "-1.0° a -1.5°", obs: "Grip nas curvas" },
+      { param: "Cambagem traseira", val: "0° a -0.5°", obs: "Firmeza traseira" },
+      { param: "Ângulo de esterçamento", val: "40°–50°", obs: "Equilíbrio entre resposta e controle" },
+      { param: "Ackermann", val: "10–20%", obs: "Base segura para qualquer carro" },
+      { param: "Caster", val: "6–7", obs: "Estabilidade e retorno do volante" },
+      { param: "KPI (pino mestre)", val: "4°–6°", obs: "Par ideal com caster 6–7 para grip geral" },
+      { param: "Transferência de peso", val: "30–40%", obs: "Menos balanço = mais previsível" },
+      { param: "Centro de gravidade", val: "10–15%", obs: "Quanto mais baixo, mais colado" },
+    ]
+  },
+  seattle: {
+    nome: "RDC Seattle",
+    descricao: "Pista rápida com muros próximos e curvas de média velocidade. Exige estabilidade direcional e controle fino perto das paredes.",
+    tipo: "Muro próximo · Média-alta velocidade",
+    configs: [
+      { param: "Diferencial (blocagem acel.)", val: "20–30%", obs: "Baixo para controle fino perto do muro" },
+      { param: "Rigidez mola dianteira", val: "90–110 kN/m", obs: "Mais rígida para estabilidade em velocidade" },
+      { param: "Rigidez mola traseira", val: "80–95 kN/m", obs: "Traseiro firme nas curvas rápidas" },
+      { param: "Pressão pneu dianteiro", val: "100–105 kPa", obs: "Máximo contato nas curvas com muro" },
+      { param: "Tração dos pneus", val: "115–120%", obs: "Alta para segurar em velocidade" },
+      { param: "Cambagem dianteira", val: "-1.0° a -1.2°", obs: "Boa resposta sem exagero" },
+      { param: "Cambagem traseira", val: "0° a -0.3°", obs: "Traseiro colado no chão" },
+      { param: "Ângulo de esterçamento", val: "45°–55°", obs: "Um pouco mais alto para corrigir perto do muro" },
+      { param: "Ackermann", val: "10–15%", obs: "Baixo para não pivotar perto da parede" },
+      { param: "Caster", val: "8–9", obs: "Auto-centralização forte = estabilidade no muro" },
+      { param: "KPI (pino mestre)", val: "5°–6°", obs: "Um pouco mais alto para reforçar estabilidade perto do muro" },
+      { param: "Transferência de peso", val: "25–30%", obs: "Mínimo balanço em velocidade" },
+      { param: "Centro de gravidade", val: "10–12%", obs: "Bem baixo para curvas rápidas" },
+    ]
+  },
+  longbeach: {
+    nome: "Long Beach",
+    descricao: "Pista de rua com curvas técnicas, zigue-zague e seções lentas. Exige boa resposta de direção e mudança de direção rápida.",
+    tipo: "Rua · Baixa-média velocidade · Técnica",
+    configs: [
+      { param: "Diferencial (blocagem acel.)", val: "25–35%", obs: "Resposta rápida nas trocas de direção" },
+      { param: "Rigidez mola dianteira", val: "80–95 kN/m", obs: "Um pouco mais suave para absorver irregularidades" },
+      { param: "Rigidez mola traseira", val: "70–85 kN/m", obs: "Traseiro responsivo mas não seco" },
+      { param: "Pressão pneu dianteiro", val: "100–110 kPa", obs: "Padrão grip" },
+      { param: "Tração dos pneus", val: "110–115%", obs: "Velocidade menor, não precisa de 120%" },
+      { param: "Cambagem dianteira", val: "-1.2° a -1.5°", obs: "Mais grip nas curvas fechadas" },
+      { param: "Cambagem traseira", val: "0° a -0.5°", obs: "Estabilidade no zigue-zague" },
+      { param: "Ângulo de esterçamento", val: "50°–60°", obs: "Alto para curvas fechadas de rua" },
+      { param: "Ackermann", val: "15–25%", obs: "Um pouco mais alto para facilitar curvas fechadas" },
+      { param: "Caster", val: "5–6", obs: "Direção mais leve para troca de direção rápida" },
+      { param: "KPI (pino mestre)", val: "3°–5°", obs: "Mais baixo para direção leve em curvas fechadas" },
+      { param: "Transferência de peso", val: "30–40%", obs: "Equilibrado para técnica" },
+      { param: "Centro de gravidade", val: "12–15%", obs: "Baixo mas não extremo" },
+    ]
+  },
+  utah: {
+    nome: "Utah Motorsports",
+    descricao: "Circuito aberto com curvas longas e alta velocidade. Exige máxima estabilidade direcional e molas firmes.",
+    tipo: "Circuito aberto · Alta velocidade · Curvas longas",
+    configs: [
+      { param: "Diferencial (blocagem acel.)", val: "30–40%", obs: "Um pouco mais alto para curvas longas" },
+      { param: "Rigidez mola dianteira", val: "95–115 kN/m", obs: "Máxima rigidez para alta velocidade" },
+      { param: "Rigidez mola traseira", val: "85–100 kN/m", obs: "Traseiro bem firme em curvas longas" },
+      { param: "Pressão pneu dianteiro", val: "100–108 kPa", obs: "Contato constante em curvas longas" },
+      { param: "Tração dos pneus", val: "110–120%", obs: "Depende da potência do motor" },
+      { param: "Cambagem dianteira", val: "-0.8° a -1.2°", obs: "Menos negativo para estabilidade em alta" },
+      { param: "Cambagem traseira", val: "0°", obs: "Traseiro reto = mais estável em alta velocidade" },
+      { param: "Ângulo de esterçamento", val: "38°–45°", obs: "Menor ângulo para precisão em alta velocidade" },
+      { param: "Ackermann", val: "10–15%", obs: "Baixo para evitar instabilidade em alta" },
+      { param: "Caster", val: "8–10", obs: "Alto para máxima estabilidade em linha reta" },
+      { param: "KPI (pino mestre)", val: "5°–7°", obs: "Mais alto para reforçar estabilidade em alta velocidade" },
+      { param: "Transferência de peso", val: "25–30%", obs: "Mínimo para não balanças em alta" },
+      { param: "Centro de gravidade", val: "8–12%", obs: "O mais baixo possível" },
+    ]
+  },
+  stlouis: {
+    nome: "St. Louis",
+    descricao: "Pista de estádio com layout compacto, curvas médias e espaço limitado. Equilíbrio entre resposta e estabilidade.",
+    tipo: "Estádio · Média velocidade · Espaço compacto",
+    configs: [
+      { param: "Diferencial (blocagem acel.)", val: "25–35%", obs: "Resposta média para layout compacto" },
+      { param: "Rigidez mola dianteira", val: "85–100 kN/m", obs: "Firme mas não excessivo" },
+      { param: "Rigidez mola traseira", val: "75–90 kN/m", obs: "Equilibrado para curvas médias" },
+      { param: "Pressão pneu dianteiro", val: "100–110 kPa", obs: "Padrão grip" },
+      { param: "Tração dos pneus", val: "110–120%", obs: "Ajuste pelo motor" },
+      { param: "Cambagem dianteira", val: "-1.0° a -1.3°", obs: "Boa resposta em curvas médias" },
+      { param: "Cambagem traseira", val: "0° a -0.4°", obs: "Leve negativo para estabilidade" },
+      { param: "Ângulo de esterçamento", val: "45°–55°", obs: "Equilibrado para o layout" },
+      { param: "Ackermann", val: "12–20%", obs: "Meio termo para estádio" },
+      { param: "Caster", val: "6–8", obs: "Equilibrado entre resposta e estabilidade" },
+      { param: "KPI (pino mestre)", val: "4°–6°", obs: "Meio termo para layout de estádio" },
+      { param: "Transferência de peso", val: "30–35%", obs: "Moderado" },
+      { param: "Centro de gravidade", val: "10–14%", obs: "Bem baixo" },
+    ]
+  },
+  irwindale: {
+    nome: "Irwindale / West Coast Arena",
+    descricao: "Oval de estádio inspirado em Irwindale. Curvas amplas com banked, velocidade média-alta, muito smoke e proximidade com a grade.",
+    tipo: "Estádio oval · Média-alta velocidade · Banked",
+    configs: [
+      { param: "Diferencial (blocagem acel.)", val: "20–30%", obs: "Baixo para controle no banked" },
+      { param: "Rigidez mola dianteira", val: "88–105 kN/m", obs: "Firme para curvas banked" },
+      { param: "Rigidez mola traseira", val: "80–95 kN/m", obs: "Traseiro estável no oval" },
+      { param: "Pressão pneu dianteiro", val: "100–108 kPa", obs: "Boa aderência no banked" },
+      { param: "Tração dos pneus", val: "115–120%", obs: "Alta para segurar no banked" },
+      { param: "Cambagem dianteira", val: "-0.8° a -1.2°", obs: "Menos negativo para curvas amplas" },
+      { param: "Cambagem traseira", val: "0° a -0.3°", obs: "Traseiro o mais reto possível" },
+      { param: "Ângulo de esterçamento", val: "42°–52°", obs: "Moderado para curvas amplas" },
+      { param: "Ackermann", val: "10–15%", obs: "Baixo para não pivotar no oval" },
+      { param: "Caster", val: "7–9", obs: "Alto para estabilidade no oval" },
+      { param: "KPI (pino mestre)", val: "5°–6°", obs: "Bom retorno do volante nas curvas amplas do banked" },
+      { param: "Transferência de peso", val: "28–35%", obs: "Baixo para curvas em alta velocidade" },
+      { param: "Centro de gravidade", val: "10–13%", obs: "Bem baixo para o banked" },
+    ]
+  }
+};
+
+function renderTrack(key) {
+  const t = tracks[key];
+  const rows = t.configs.map(c => `
+    <tr>
+      <td class="param">${c.param}</td>
+      <td class="new">${c.val}</td>
+      <td style="color:#777;font-size:0.82rem">${c.obs}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('track-result').innerHTML = `
+    <div class="card full" style="margin-top:0">
+      <div class="card-title">
+        <span class="section-num">★</span>${t.nome}
+        <span style="margin-left:auto;font-size:0.68rem;color:#555;font-family:'DM Mono',monospace">${t.tipo}</span>
+      </div>
+      <p style="color:#666;font-size:0.82rem;margin-bottom:16px;font-style:italic">${t.descricao}</p>
+      <table>
+        <tr><th>Parâmetro</th><th>Recomendado</th><th>Observação</th></tr>
+        ${rows}
+      </table>
+    </div>
+  `;
+}
+
+document.getElementById('track-select').addEventListener('change', function() {
+  if (this.value) renderTrack(this.value);
+  else document.getElementById('track-result').innerHTML = '<div style="color:#444;font-family:\'DM Mono\',monospace;font-size:0.75rem;letter-spacing:0.1em;text-align:center;padding:48px 0">SELECIONE UMA PISTA ACIMA</div>';
+});
+
+document.getElementById('mode-select').addEventListener('change', function() {
+  const guia = document.getElementById('panel-guia');
+  const mapas = document.getElementById('panel-mapas');
+  const badge = document.getElementById('badge-label');
+  if (this.value === 'guia') {
+    guia.style.display = 'block';
+    mapas.style.display = 'none';
+    badge.textContent = '200SX · Slow Tune';
+  } else {
+    guia.style.display = 'none';
+    mapas.style.display = 'block';
+    badge.textContent = 'Config por Pista';
+  }
+});
+</script>
+</body>
+</html>
