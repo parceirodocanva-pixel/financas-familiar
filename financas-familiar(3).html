@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanças Familiar</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f4f0; --surface: #ffffff; --surface2: #f0eeea;
+      --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+      --text: #1a1a18; --text2: #6b6b67; --text3: #9e9e99;
+      --green: #1D9E75; --green-bg: #E1F5EE; --green-text: #085041;
+      --red: #E24B4A; --red-bg: #FCEBEB; --red-text: #7a1f1f;
+      --blue: #185FA5; --blue-bg: #E6F1FB; --blue-text: #0C447C;
+      --amber: #BA7517; --amber-bg: #FAEEDA; --amber-text: #633806;
+      --purple: #534AB7; --purple-bg: #EEEDFE; --purple-text: #26215C;
+      --radius: 10px; --radius-lg: 14px;
+    }
+    [data-theme="dark"] {
+      --bg: #1a1a18; --surface: #242422; --surface2: #2e2e2b;
+      --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+      --text: #f0eeea; --text2: #9e9e99; --text3: #6b6b67;
+      --green: #5DCAA5; --green-bg: #04342C; --green-text: #9FE1CB;
+      --red: #F09595; --red-bg: #501313; --red-text: #F09595;
+      --blue: #85B7EB; --blue-bg: #042C53; --blue-text: #B5D4F4;
+      --amber: #EF9F27; --amber-bg: #412402; --amber-text: #FAC775;
+      --purple: #AFA9EC; --purple-bg: #26215C; --purple-text: #CECBF6;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    #loading { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 999; font-size: 14px; color: var(--text2); }
+    .spinner { width: 22px; height: 22px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* AUTH */
+    #auth-screen { min-height: 100vh; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .auth-card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 2rem; width: 100%; max-width: 360px; }
+    .auth-logo { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 0.25rem; }
+    .auth-logo span { color: var(--green); }
+    .auth-sub { text-align: center; font-size: 13px; color: var(--text2); margin-bottom: 1.75rem; }
+    .auth-tabs { display: flex; border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.5rem; }
+    .auth-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; border: none; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; }
+    .auth-tab.active { background: var(--green); color: #fff; }
+    .fg { margin-bottom: 14px; }
+    .fg label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 5px; font-weight: 500; }
+    .fg input, .fg select { width: 100%; padding: 10px 12px; border: 0.5px solid var(--border2); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text); outline: none; }
+    .fg input:focus, .fg select:focus { border-color: var(--green); }
+    .btn-primary { width: 100%; padding: 11px; border: none; border-radius: 8px; background: var(--green); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-error { font-size: 12px; color: var(--red); background: var(--red-bg); border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; display: none; }
+
+    /* APP */
+    #app-screen { display: none; }
+    .header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 1.25rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 10; }
+    .header-logo { font-size: 15px; font-weight: 700; }
+    .header-logo span { color: var(--green); }
+    .header-right { display: flex; gap: 8px; }
+    .hbtn { height: 30px; padding: 0 12px; border-radius: 20px; border: 0.5px solid var(--border2); background: none; cursor: pointer; font-size: 12px; color: var(--text2); }
+    .hbtn:hover { background: var(--surface2); }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 1.25rem 1rem 4rem; }
+
+    /* MAIN TABS */
+    .main-tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; }
+    .main-tab { flex: 1; padding: 10px 0; font-size: 13px; font-weight: 500; border: 0.5px solid var(--border); border-radius: var(--radius); background: none; cursor: pointer; color: var(--text2); display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.15s; }
+    .main-tab:hover { background: var(--surface2); }
+    .main-tab.active { background: var(--surface); color: var(--text); border-color: var(--border2); }
+    .tab-av { width: 22px; height: 22px; border-radius: 50%; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .av-eu { background: var(--blue-bg); color: var(--blue-text); }
+    .av-mae { background: var(--green-bg); color: var(--green-text); }
+
+    /* SUB TABS (minhas finanças) */
+    .sub-tabs { display: flex; gap: 4px; margin-bottom: 1rem; background: var(--surface2); border-radius: var(--radius); padding: 4px; }
+    .sub-tab { flex: 1; padding: 7px 0; font-size: 12px; font-weight: 500; border: none; border-radius: 7px; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; }
+    .sub-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+    .section { display: none; }
+    .section.active { display: block; }
+    .sub-section { display: none; }
+    .sub-section.active { display: block; }
+
+    .mes-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 7px 12px; }
+    .mes-nav button { border: 0.5px solid var(--border); border-radius: 6px; background: none; padding: 4px 10px; cursor: pointer; color: var(--text2); font-size: 12px; }
+    .mes-nav button:hover { background: var(--surface2); }
+    .mes-nav span { font-size: 14px; font-weight: 500; }
+
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1rem; }
+    .metric { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; }
+    .metric .lbl { font-size: 11px; color: var(--text3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .metric .val { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+    .v-green { color: var(--green); } .v-red { color: var(--red); }
+
+    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; margin-bottom: 1rem; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .card-title { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+    .add-btn { font-size: 12px; padding: 4px 12px; border: 0.5px solid var(--border2); border-radius: 20px; background: none; cursor: pointer; color: var(--text2); font-weight: 500; }
+    .add-btn:hover { background: var(--surface2); }
+
+    .exp-item { display: flex; align-items: center; gap: 8px; padding: 9px 6px; border-radius: 7px; }
+    .exp-item:hover { background: var(--surface2); }
+    .rec-btn { font-size: 14px; color: var(--text3); cursor: pointer; padding: 3px 6px; border-radius: 4px; border: 0.5px solid var(--border); background: none; flex-shrink: 0; transition: all 0.15s; }
+    .rec-btn:hover { color: var(--green); border-color: var(--green); }
+    .rec-btn.rec-on { color: var(--green); border-color: var(--green); background: var(--green-bg); }
+    .badge-recorrente { background: var(--green-bg); color: var(--green-text); }
+
+    /* RESERVAS */
+    .reserva-item { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; margin-bottom: 0.75rem; }
+    .reserva-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .reserva-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .reserva-nome { font-size: 14px; font-weight: 600; flex: 1; }
+    .reserva-total { font-size: 16px; font-weight: 700; color: var(--green); }
+    .reserva-del { font-size: 11px; color: var(--text3); cursor: pointer; padding: 4px 8px; border-radius: 4px; border: none; background: none; }
+    .reserva-del:hover { color: var(--red); background: var(--red-bg); }
+    .reserva-depositos { border-top: 0.5px solid var(--border); padding-top: 8px; margin-top: 4px; }
+    .dep-item { display: flex; align-items: center; gap: 8px; padding: 6px 4px; font-size: 13px; border-radius: 6px; }
+    .dep-item:hover { background: var(--surface2); }
+    .dep-mes { flex: 1; color: var(--text2); }
+    .dep-val { font-weight: 600; color: var(--green); }
+    .dep-del { font-size: 11px; color: var(--text3); cursor: pointer; padding: 2px 6px; border-radius: 4px; border: none; background: none; }
+    .dep-del:hover { color: var(--red); background: var(--red-bg); }
+    .exp-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .exp-info { flex: 1; min-width: 0; }
+    .exp-name { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .exp-tags { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+    .badge { font-size: 10px; padding: 1px 6px; border-radius: 20px; font-weight: 500; }
+    .badge-recorrente { background: var(--green-bg); color: var(--green-text); }
+    .rec-btn { font-size: 14px; color: var(--text3); cursor: pointer; padding: 3px 6px; border-radius: 4px; border: none; background: none; flex-shrink: 0; transition: all 0.15s; }
+    .rec-btn:hover { color: var(--green); background: var(--green-bg); }
+    .rec-btn.rec-on { color: var(--green); background: var(--green-bg); }
+    .badge-cartao { background: var(--purple-bg); color: var(--purple-text); }
+    .badge-vence { background: var(--red-bg); color: var(--red-text); }
+    .exp-val { font-size: 13px; font-weight: 600; min-width: 85px; text-align: right; flex-shrink: 0; }
+    .exp-del { font-size: 11px; color: var(--text3); cursor: pointer; padding: 4px 7px; border-radius: 4px; border: none; background: none; flex-shrink: 0; }
+    .exp-del:hover { color: var(--red); background: var(--red-bg); }
+    .divider { height: 0.5px; background: var(--border); margin: 2px 0; }
+    .empty { color: var(--text3); font-size: 13px; padding: 1.25rem 0; text-align: center; }
+
+    /* SALDO MAE */
+    .saldo-box { background: var(--green-bg); border: 0.5px solid rgba(29,158,117,0.2); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 1rem; }
+    .saldo-box-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .saldo-box .sl { font-size: 11px; color: var(--green-text); font-weight: 500; margin-bottom: 3px; }
+    .saldo-box .sv { font-size: 17px; font-weight: 700; color: var(--green); }
+    .saldo-box button { font-size: 11px; border: 0.5px solid rgba(29,158,117,0.3); border-radius: 6px; background: none; padding: 4px 10px; cursor: pointer; color: var(--green-text); }
+    .saldo-total { border-top: 0.5px solid rgba(29,158,117,0.2); padding-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .saldo-total .st-label { font-size: 12px; color: var(--green-text); font-weight: 600; }
+    .saldo-total .st-val { font-size: 22px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }
+    .saldo-calc { font-size: 11px; color: var(--green-text); opacity: 0.7; margin-top: 2px; }
+
+    /* CARTÕES */
+    .card-cc { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; margin-bottom: 0.75rem; }
+    .cc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .cc-icon { width: 36px; height: 24px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .cc-name { font-size: 14px; font-weight: 600; flex: 1; }
+    .cc-venc { font-size: 11px; color: var(--text3); }
+    .cc-total { font-size: 15px; font-weight: 700; color: var(--red); }
+    .cc-del { font-size: 11px; color: var(--text3); cursor: pointer; padding: 4px 8px; border-radius: 4px; border: none; background: none; }
+    .cc-del:hover { color: var(--red); background: var(--red-bg); }
+    .cc-items { border-top: 0.5px solid var(--border); margin-top: 8px; padding-top: 6px; }
+    .cc-add { font-size: 11px; color: var(--text2); cursor: pointer; padding: 4px 10px; border: 0.5px solid var(--border2); border-radius: 20px; background: none; }
+    .cc-add:hover { background: var(--surface2); }
+
+    /* BARS */
+    .bar-wrap { margin-bottom: 12px; }
+    .bar-lbl { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+    .bar-lbl span:first-child { color: var(--text2); }
+    .bar-lbl span:last-child { font-weight: 600; }
+    .bar-pct { font-size: 10px; color: var(--text3); margin-left: 4px; }
+    .bar-track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+
+    /* OVERLAY / MODAL */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 460px; border: 0.5px solid var(--border2); max-height: 88vh; overflow-y: auto; }
+    .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 1.25rem; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
+    .btn-cancel { padding: 10px 18px; border: 0.5px solid var(--border2); border-radius: 8px; background: none; cursor: pointer; font-size: 13px; color: var(--text2); }
+    .btn-save { padding: 10px 18px; border: none; border-radius: 8px; background: var(--green); color: #fff; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 0.5px solid var(--border); margin-top: 4px; }
+    .toggle-label { font-size: 13px; color: var(--text); }
+    .toggle { position: relative; width: 40px; height: 22px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--border2); border-radius: 22px; cursor: pointer; transition: 0.2s; }
+    .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s; }
+    .toggle input:checked + .toggle-slider { background: var(--green); }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+    /* MOBILE */
+    @media (max-width: 600px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .metrics .metric:last-child { grid-column: span 2; }
+      .metric .val { font-size: 16px; }
+      .container { padding: 1rem 0.75rem 5rem; }
+      .main-tabs { gap: 8px; }
+      .main-tab { padding: 12px 0; font-size: 13px; }
+      .header { padding: 0 1rem; }
+      .hbtn { height: 32px; padding: 0 10px; font-size: 11px; }
+      .mes-nav button { padding: 8px 14px; font-size: 13px; }
+      .fg input, .fg select { font-size: 16px; padding: 12px; }
+      .btn-cancel, .btn-save { padding: 12px 18px; font-size: 14px; min-height: 44px; }
+      .auth-card { padding: 1.5rem; }
+      .btn-primary { padding: 13px; font-size: 15px; min-height: 48px; }
+      .overlay { align-items: flex-end; padding: 0; }
+      .modal { border-radius: 20px 20px 0 0; padding: 1.5rem 1.25rem 2.5rem; max-width: 100%; max-height: 85vh; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div> Carregando...</div>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">Finanças <span>Familiar</span></div>
+    <div class="auth-sub">Controle financeiro para você e sua mãe</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuth('login')">Entrar</button>
+      <button class="auth-tab" id="tab-cadastro" onclick="switchAuth('cadastro')">Cadastrar</button>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="fg"><label>E-mail</label><input type="email" id="auth-email" placeholder="seu@email.com" /></div>
+    <div class="fg"><label>Senha</label><input type="password" id="auth-pass" placeholder="Mínimo 6 caracteres" /></div>
+    <div class="fg" id="fg-pass2" style="display:none"><label>Confirmar senha</label><input type="password" id="auth-pass2" placeholder="Repita a senha" /></div>
+    <button class="btn-primary" id="auth-btn" onclick="doAuth()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="header">
+    <div class="header-logo">Finanças <span>Familiar</span></div>
+    <div class="header-right">
+      <button class="hbtn" id="theme-btn">☾ Tema</button>
+      <button class="hbtn" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+  <div class="container">
+
+    <!-- MAIN TABS -->
+    <div class="main-tabs">
+      <button class="main-tab active" id="mtab-minha" onclick="showMain('minha')"><div class="tab-av av-eu">EU</div> Minhas finanças</button>
+      <button class="main-tab" id="mtab-mae" onclick="showMain('mae')"><div class="tab-av av-mae">MÃE</div> Finanças da mãe</button>
+    </div>
+
+    <!-- ===== MINHAS FINANÇAS ===== -->
+    <div class="section active" id="sec-minha">
+      <div class="mes-nav">
+        <button onclick="changeMonth('minha',-1)">&#8592; Anterior</button>
+        <span id="minha-mes"></span>
+        <button onclick="changeMonth('minha',1)">Próximo &#8594;</button>
+      </div>
+      <div class="metrics" id="minha-metrics"></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Receitas</span><button class="add-btn" onclick="openModal('minha','receita')">+ Adicionar</button></div>
+        <div id="minha-receitas"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Despesas</span>
+          <div style="display:flex;gap:6px;">
+            <button class="add-btn" onclick="openCartaoModal()" title="Gerenciar cartões">&#9654; Cartões</button>
+            <button class="add-btn" onclick="openModal('minha','despesa')">+ Adicionar</button>
+          </div>
+        </div>
+        <div id="minha-despesas"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Reservas</span>
+          <button class="add-btn" onclick="openReservaModal()">+ Nova reserva</button>
+        </div>
+        <div id="reservas-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== FINANÇAS DA MÃE ===== -->
+    <div class="section" id="sec-mae">
+      <div class="saldo-box">
+        <div class="saldo-box-top">
+          <div><div class="sl">Dinheiro guardado na conta</div><div class="sv" id="saldo-display">R$ 0,00</div></div>
+          <button onclick="openSaldo()">Editar</button>
+        </div>
+        <div class="saldo-total">
+          <div><div class="st-label">Total disponível para ela</div><div class="saldo-calc" id="saldo-calc"></div></div>
+          <div class="st-val" id="saldo-total-display">R$ 0,00</div>
+        </div>
+      </div>
+      <div class="mes-nav">
+        <button onclick="changeMonth('mae',-1)">&#8592; Anterior</button>
+        <span id="mae-mes"></span>
+        <button onclick="changeMonth('mae',1)">Próximo &#8594;</button>
+      </div>
+      <div class="metrics" id="mae-metrics"></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Receitas</span><button class="add-btn" onclick="openModal('mae','receita')">+ Adicionar</button></div>
+        <div id="mae-receitas"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Despesas</span><button class="add-btn" onclick="openModal('mae','despesa')">+ Adicionar</button></div>
+        <div id="mae-despesas"></div>
+      </div>
+      <div class="card"><div class="card-header"><span class="card-title">Por categoria</span></div><div id="mae-bars"></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL LANÇAMENTO -->
+<div class="overlay" id="entry-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Adicionar despesa</h3>
+    <div class="fg"><label>Descrição</label><input type="text" id="inp-desc" placeholder="Ex: Aluguel, Remédio..." /></div>
+    <div class="fg"><label>Valor (R$)</label><input type="number" id="inp-val" placeholder="0.00" min="0" step="0.01" /></div>
+    <div class="fg" id="fg-cat"><label>Categoria</label>
+      <select id="inp-cat">
+        <option value="moradia">Moradia</option>
+        <option value="saude">Saúde / Remédios</option>
+        <option value="alimentacao">Alimentação</option>
+        <option value="transporte">Transporte</option>
+        <option value="lazer">Lazer</option>
+        <option value="higiene">Higiene / Cuidados</option>
+        <option value="assinatura">Assinatura / Serviço</option>
+        <option value="outros">Outros</option>
+      </select>
+    </div>
+    <div id="fg-cartao-toggle" class="toggle-row" style="display:none">
+      <span class="toggle-label">É despesa de cartão?</span>
+      <label class="toggle"><input type="checkbox" id="inp-cartao" onchange="toggleCartao()" /><span class="toggle-slider"></span></label>
+    </div>
+    <div class="fg" id="fg-cartao-sel" style="display:none">
+      <label>Qual cartão?</label>
+      <select id="inp-cartao-sel"></select>
+    </div>
+    <div id="fg-volatil-toggle" class="toggle-row" style="display:none">
+      <span class="toggle-label">Despesa volátil (tem data de término)</span>
+      <label class="toggle"><input type="checkbox" id="inp-volatil" onchange="toggleVolatil()" /><span class="toggle-slider"></span></label>
+    </div>
+    <div class="fg" id="fg-termino" style="display:none">
+      <label>Data de término</label>
+      <input type="date" id="inp-termino" />
+    </div>
+    <div id="fg-recorrente-toggle" class="toggle-row" style="display:none">
+      <span class="toggle-label">Repetir todo mês automaticamente</span>
+      <label class="toggle"><input type="checkbox" id="inp-recorrente" /><span class="toggle-slider"></span></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveEntry()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CARTÃO (gerenciar) -->
+<div class="overlay" id="cartao-overlay">
+  <div class="modal">
+    <h3>Gerenciar cartões</h3>
+    <div id="cartoes-manage-list" style="margin-bottom:1rem;"></div>
+    <div style="border-top:0.5px solid var(--border);padding-top:1rem;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Adicionar novo cartão</div>
+      <div class="fg"><label>Nome do cartão</label><input type="text" id="cc-nome" placeholder="Ex: Nubank, Inter, Itaú..." /></div>
+      <div class="fg"><label>Data de vencimento da fatura</label><input type="date" id="cc-venc" /></div>
+      <div class="fg"><label>Cor</label>
+        <select id="cc-cor">
+          <option value="#7F77DD">Roxo</option>
+          <option value="#1D9E75">Verde</option>
+          <option value="#E24B4A">Vermelho</option>
+          <option value="#185FA5">Azul</option>
+          <option value="#BA7517">Laranja</option>
+          <option value="#444441">Preto</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCartaoModal()">Fechar</button>
+      <button class="btn-save" onclick="saveCartao()">+ Adicionar cartão</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SALDO -->
+<div class="overlay" id="saldo-overlay">
+  <div class="modal">
+    <h3>Dinheiro guardado da mãe</h3>
+    <div class="fg"><label>Valor (R$)</label><input type="number" id="saldo-inp" placeholder="0.00" min="0" step="0.01" /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSaldo()">Cancelar</button>
+      <button class="btn-save" onclick="saveSaldo()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA RESERVA -->
+<div class="overlay" id="reserva-overlay">
+  <div class="modal">
+    <h3>Nova reserva</h3>
+    <div class="fg"><label>Nome</label><input type="text" id="res-nome" placeholder="Ex: PagBank, Nubank, Poupança..." /></div>
+    <div class="fg"><label>Cor</label>
+      <select id="res-cor">
+        <option value="#1D9E75">Verde</option>
+        <option value="#185FA5">Azul</option>
+        <option value="#7F77DD">Roxo</option>
+        <option value="#BA7517">Laranja</option>
+        <option value="#E24B4A">Vermelho</option>
+        <option value="#444441">Preto</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeReservaModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveReserva()">Criar reserva</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEPÓSITO RESERVA -->
+<div class="overlay" id="deposito-overlay">
+  <div class="modal">
+    <h3 id="deposito-title">Adicionar depósito</h3>
+    <div class="fg"><label>Valor do depósito (R$)</label><input type="number" id="dep-val" placeholder="0.00" min="0" step="0.01" /></div>
+    <div class="fg"><label>Mês de referência</label><input type="month" id="dep-mes" /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDepositoModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveDeposito()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAqA90N6Xw8Wj8ufgwiM2M4rH3w93Yx_fU",
+    authDomain: "controlefinancas-19159.firebaseapp.com",
+    projectId: "controlefinancas-19159",
+    storageBucket: "controlefinancas-19159.firebasestorage.app",
+    messagingSenderId: "497022796807",
+    appId: "1:497022796807:web:7579dba48259338cb256a2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const CAT_COLORS = { moradia:'#185FA5', saude:'#1D9E75', alimentacao:'#BA7517', transporte:'#7F77DD', lazer:'#D4537E', higiene:'#3B6D11', assinatura:'#534AB7', outros:'#888780' };
+  const CAT_LABELS = { moradia:'Moradia', saude:'Saúde / Remédios', alimentacao:'Alimentação', transporte:'Transporte', lazer:'Lazer', higiene:'Higiene', assinatura:'Assinatura', outros:'Outros' };
+
+  const now = new Date();
+  let ST = { minha:{month:now.getMonth(),year:now.getFullYear()}, mae:{month:now.getMonth(),year:now.getFullYear()} };
+  let modalCtx = {};
+  let ccEntryCtx = {};
+  let userData = { minha:{}, mae:{}, saldo_mae:0, cartoes:[] };
+  let currentUser = null;
+
+  // ── AUTH ───────────────────────────────────────────────
+  let authMode = 'login';
+  window.switchAuth = (mode) => {
+    authMode = mode;
+    document.getElementById('tab-login').classList.toggle('active', mode==='login');
+    document.getElementById('tab-cadastro').classList.toggle('active', mode==='cadastro');
+    document.getElementById('fg-pass2').style.display = mode==='cadastro'?'block':'none';
+    document.getElementById('auth-btn').textContent = mode==='login'?'Entrar':'Criar conta';
+    showErr('');
+  };
+
+  window.doAuth = async () => {
+    const email = document.getElementById('auth-email').value.trim();
+    const pass = document.getElementById('auth-pass').value;
+    const pass2 = document.getElementById('auth-pass2').value;
+    const btn = document.getElementById('auth-btn');
+    showErr('');
+    if (!email||!pass) { showErr('Preencha e-mail e senha.'); return; }
+    if (authMode==='cadastro'&&pass!==pass2) { showErr('As senhas não coincidem.'); return; }
+    if (authMode==='cadastro'&&pass.length<6) { showErr('Senha precisa ter ao menos 6 caracteres.'); return; }
+    btn.disabled=true; btn.textContent='Aguarde...';
+    try {
+      if (authMode==='login') await signInWithEmailAndPassword(auth,email,pass);
+      else await createUserWithEmailAndPassword(auth,email,pass);
+    } catch(e) {
+      const msgs={'auth/user-not-found':'Usuário não encontrado.','auth/wrong-password':'Senha incorreta.','auth/email-already-in-use':'E-mail já cadastrado.','auth/invalid-email':'E-mail inválido.','auth/invalid-credential':'E-mail ou senha incorretos.'};
+      showErr(msgs[e.code]||'Erro ao autenticar.');
+      btn.disabled=false; btn.textContent=authMode==='login'?'Entrar':'Criar conta';
+    }
+  };
+  function showErr(msg) { const el=document.getElementById('auth-error'); el.textContent=msg; el.style.display=msg?'block':'none'; }
+  window.doLogout = () => signOut(auth);
+
+  // ── FIRESTORE ──────────────────────────────────────────
+  function sanitize(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  async function loadUserData(uid) {
+    try {
+      const snap = await getDoc(doc(db,'usuarios',uid));
+      if (snap.exists()) {
+        userData = snap.data();
+        if (!userData.cartoes) userData.cartoes = [];
+        if (!userData.minha) userData.minha = {};
+        if (!userData.mae) userData.mae = {};
+      } else {
+        // Novo usuário — começa zerado
+        userData = { minha:{ _init:true }, mae:{ _init:true }, saldo_mae:0, cartoes:[] };
+        await setDoc(doc(db,'usuarios',uid), sanitize(userData));
+      }
+    } catch(e) {
+      console.error('Erro ao carregar dados:', e);
+    }
+  }
+
+  async function save() {
+    if (!currentUser) return;
+    try {
+      // Firestore ignora campos com objetos vazios, então garantimos que sempre há algo
+      const dataToSave = sanitize(userData);
+      if (!dataToSave.minha || Object.keys(dataToSave.minha).length === 0) {
+        dataToSave.minha = { _init: true };
+      }
+      if (!dataToSave.mae || Object.keys(dataToSave.mae).length === 0) {
+        dataToSave.mae = { _init: true };
+      }
+      await setDoc(doc(db,'usuarios',currentUser.uid), dataToSave);
+    } catch(e) {
+      console.error('Erro ao salvar:', e);
+      alert('Erro ao salvar dados. Verifique sua conexão.');
+    }
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    document.getElementById('loading').style.display='none';
+    if (user) {
+      currentUser=user;
+      await loadUserData(user.uid);
+      document.getElementById('auth-screen').style.display='none';
+      document.getElementById('app-screen').style.display='block';
+      renderMinha(); renderMae(); renderReservas();
+    } else {
+      currentUser=null;
+      document.getElementById('auth-screen').style.display='flex';
+      document.getElementById('app-screen').style.display='none';
+    }
+  });
+
+  // ── HELPERS ────────────────────────────────────────────
+  function getKey(p) { return `${ST[p].year}-${ST[p].month}`; }
+  function getMD(p) {
+    if(!userData[p]) userData[p]={};
+    if(userData[p]._init) delete userData[p]._init;
+    if(!userData[p][getKey(p)]) userData[p][getKey(p)]={receitas:[],despesas:[]};
+    return userData[p][getKey(p)];
+  }
+  function fmt(v) { return 'R$\u00a0'+parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function esc(s) { return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // Verifica se despesa volátil ainda está ativa no mês/ano atual
+  function isActive(item, year, month) {
+    if (!item.volatil || !item.termino) return true;
+    const end = new Date(item.termino+'T12:00:00');
+    const cur = new Date(year, month+1, 0); // último dia do mês atual
+    return end >= cur;
+  }
+
+  function fmtTermino(termino) {
+    if (!termino) return '';
+    const d = new Date(termino+'T12:00:00');
+    return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'});
+  }
+
+  // Retorna despesas de cartões que caem neste mês (baseado no vencimento do cartão)
+  // Despesas recorrentes aparecem em todos os meses a partir do mês do cartão
+  function getCartaoDespesasDoMes(year, month) {
+    const result = [];
+    (userData.cartoes||[]).forEach((cc, ccIdx) => {
+      if (!cc.venc) return;
+      const vencDate = new Date(cc.venc+'T12:00:00');
+      const ccYear = vencDate.getFullYear();
+      const ccMonth = vencDate.getMonth();
+      // Despesa aparece no mês do cartão OU em meses seguintes se for recorrente
+      const isOriginMonth = ccYear === year && ccMonth === month;
+      const isAfterOrigin = year > ccYear || (year === ccYear && month > ccMonth);
+      (cc.despesas||[]).forEach((d, dIdx) => {
+        if (!isActive(d, year, month)) return;
+        if (isOriginMonth || (d.recorrente && isAfterOrigin)) {
+          result.push({ ...d, _ccNome: cc.nome, _ccCor: cc.cor, _ccIdx: ccIdx, _dIdx: dIdx });
+        }
+      });
+    });
+    return result;
+  }
+
+  // ── RENDER MINHA ───────────────────────────────────────
+  function renderMinha() {
+    const md = getMD('minha');
+    const y = ST.minha.year, m = ST.minha.month;
+    document.getElementById('minha-mes').textContent = `${MESES[m]} ${y}`;
+
+    const ccDespesas = getCartaoDespesasDoMes(y, m);
+    const totalR = md.receitas.reduce((s,i)=>s+i.val,0);
+
+    // Despesas manuais ativas
+    const despesasAtivas = md.despesas.filter(i=>isActive(i,y,m));
+    const despesasInativas = md.despesas.filter(i=>!isActive(i,y,m));
+
+    // Despesas recorrentes globais
+    const recorrentes = ((userData.recorrentes||{})['minha']||[]).filter(i=>isActive(i,y,m));
+    const despesasEfetivas = [...despesasAtivas, ...recorrentes];
+
+    const totalDManual = despesasEfetivas.reduce((s,i)=>s+i.val,0);
+    const totalDCC = ccDespesas.reduce((s,i)=>s+i.val,0);
+    const totalD = totalDManual + totalDCC;
+    const saldo = totalR - totalD;
+
+    document.getElementById('minha-metrics').innerHTML=`
+      <div class="metric"><div class="lbl">Receitas</div><div class="val v-green">${fmt(totalR)}</div></div>
+      <div class="metric"><div class="lbl">Despesas</div><div class="val v-red">${fmt(totalD)}</div></div>
+      <div class="metric"><div class="lbl">Saldo</div><div class="val ${saldo>=0?'v-green':'v-red'}">${fmt(saldo)}</div></div>`;
+
+    // Receitas
+    document.getElementById('minha-receitas').innerHTML = !md.receitas.length
+      ? '<div class="empty">Nenhuma receita registrada</div>'
+      : md.receitas.map(i=>`<div class="exp-item">
+          <div class="exp-dot" style="background:var(--green)"></div>
+          <div class="exp-info"><div class="exp-name">${esc(i.desc)}</div></div>
+          <span class="exp-val" style="color:var(--green)">${fmt(i.val)}</span>
+          <button class="exp-del" onclick="delEntry('minha','receita',${i.id})">✕</button>
+        </div>`).join('<div class="divider"></div>');
+
+    let despHTML = '';
+    if (!despesasEfetivas.length && !ccDespesas.length) {
+      despHTML = '<div class="empty">Nenhuma despesa registrada</div>';
+    } else {
+      const allItems = [
+        ...despesasEfetivas.map(i => renderExpItem(i, 'minha')),
+        ...ccDespesas.map(i => renderCCExpItem(i))
+      ];
+      despHTML = allItems.join('<div class="divider"></div>');
+      if (despesasInativas.length) {
+        despHTML += `<div style="margin-top:10px;padding-top:8px;border-top:0.5px solid var(--border)"><div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Encerradas (não somam)</div>`;
+        despHTML += despesasInativas.map(i=>`<div class="exp-item" style="opacity:0.4">
+          <div class="exp-dot" style="background:#888"></div>
+          <div class="exp-info"><div class="exp-name">${esc(i.desc)}</div><div class="exp-tags"><span class="badge badge-vence">Encerrado</span></div></div>
+          <span class="exp-val">${fmt(i.val)}</span>
+          <button class="exp-del" onclick="delEntry('minha','despesa',${i.id})">✕</button>
+        </div>`).join('');
+        despHTML += '</div>';
+      }
+    }
+    document.getElementById('minha-despesas').innerHTML = despHTML;
+
+    renderBars('minha', [...despesasEfetivas, ...ccDespesas], totalD);
+    renderCartoes();
+  }
+
+  function renderExpItem(i, p) {
+    const tags = [];
+    if (i.recorrente) tags.push(`<span class="badge badge-recorrente">Recorrente</span>`);
+    if (i.volatil) tags.push(`<span class="badge badge-volatil">Volátil</span>`);
+    if (i.termino) tags.push(`<span class="badge badge-vence">até ${fmtTermino(i.termino)}</span>`);
+    return `<div class="exp-item">
+      <div class="exp-dot" style="background:${CAT_COLORS[i.cat]||'#888'}"></div>
+      <div class="exp-info">
+        <div class="exp-name">${esc(i.desc)}</div>
+        ${tags.length?`<div class="exp-tags">${tags.join('')}</div>`:''}
+      </div>
+      <span class="exp-val">${fmt(i.val)}</span>
+      <button class="rec-btn ${i.recorrente?'rec-on':''}" title="${i.recorrente?'Desmarcar recorrente':'Fixar todo mês'}" onclick="toggleRecorrente('${p}',${i.id})">↻</button>
+      <button class="exp-del" onclick="delEntry('${p}','despesa',${i.id})">✕</button>
+    </div>`;
+  }
+
+  function renderCCExpItem(i, ccIdx, dIdx) {
+    return `<div class="exp-item">
+      <div class="exp-dot" style="background:${i._ccCor||'#888'}"></div>
+      <div class="exp-info">
+        <div class="exp-name">${esc(i.desc)}</div>
+        <div class="exp-tags">
+          <span class="badge badge-cartao">${esc(i._ccNome)}</span>
+          ${i.recorrente?'<span class="badge badge-recorrente">Recorrente</span>':''}
+          ${i.volatil&&i.termino?`<span class="badge badge-vence">até ${fmtTermino(i.termino)}</span>`:''}
+        </div>
+      </div>
+      <span class="exp-val">${fmt(i.val)}</span>
+      <button class="rec-btn ${i.recorrente?'rec-on':''}" title="${i.recorrente?'Desmarcar recorrente':'Fixar todo mês'}" onclick="toggleCCRecorrente(${i._ccIdx},${i._dIdx})">↻</button>
+      <button class="exp-del" onclick="delCCDespesa(${i._ccIdx},${i._dIdx})">✕</button>
+    </div>`;
+  }
+
+  function renderBars(p, despesas, totalD) {
+    const byCat={};
+    despesas.forEach(i=>{byCat[i.cat]=(byCat[i.cat]||0)+i.val;});
+    const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+    const bEl=document.getElementById(`${p}-bars`);
+    if(!cats.length){bEl.innerHTML='<div class="empty">Sem despesas ainda</div>';return;}
+    const max=Math.max(...cats.map(c=>c[1]));
+    bEl.innerHTML=cats.map(([cat,val])=>`<div class="bar-wrap">
+      <div class="bar-lbl"><span>${CAT_LABELS[cat]||cat}</span><span>${fmt(val)}<span class="bar-pct">${totalD?Math.round(val/totalD*100):0}%</span></span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(val/max*100)}%;background:${CAT_COLORS[cat]||'#888'}"></div></div>
+    </div>`).join('');
+  }
+
+  // Toggle recorrente em despesas manuais
+  window.toggleRecorrente = async (p, id) => {
+    const md = getMD(p);
+    const item = md.despesas.find(i=>i.id==id);
+    if (!item) return;
+    item.recorrente = !item.recorrente;
+    if(p==='minha') renderMinha(); else renderMae();
+    await save();
+  };
+
+  // Toggle recorrente em despesas de cartão
+  window.toggleCCRecorrente = async (ccIdx, dIdx) => {
+    const d = userData.cartoes[ccIdx].despesas[dIdx];
+    if (!d) return;
+    d.recorrente = !d.recorrente;
+    renderMinha(); await save();
+  };
+
+  // ── RENDER CARTÕES ─────────────────────────────────────
+  function renderCartoes() {
+    const el = document.getElementById('cartoes-list');
+    if (!el) return; // elemento pode não existir se aba foi removida
+    if (!userData.cartoes||!userData.cartoes.length) {
+      el.innerHTML='<div class="empty">Nenhum cartão cadastrado ainda</div>'; return;
+    }
+    el.innerHTML = userData.cartoes.map((cc,ci)=>{
+      const total=(cc.despesas||[]).reduce((s,d)=>s+d.val,0);
+      const items=(cc.despesas||[]).map((d,di)=>`<div class="exp-item">
+        <div class="exp-dot" style="background:${CAT_COLORS[d.cat]||'#888'}"></div>
+        <div class="exp-info">
+          <div class="exp-name">${esc(d.desc)}</div>
+          <div class="exp-tags">
+            ${d.volatil?'<span class="badge badge-volatil">Volátil</span>':''}
+            ${d.termino?`<span class="badge badge-vence">até ${fmtTermino(d.termino)}</span>`:''}
+          </div>
+        </div>
+        <span class="exp-val">${fmt(d.val)}</span>
+        <button class="exp-del" onclick="delCCDespesa(${ci},${di})">✕</button>
+      </div>`).join('<div class="divider"></div>');
+
+      return `<div class="card-cc">
+        <div class="cc-header">
+          <div class="cc-icon" style="background:${cc.cor||'#888'}">${esc(cc.nome).substring(0,2).toUpperCase()}</div>
+          <div class="cc-name">${esc(cc.nome)}</div>
+          <div class="cc-venc">Vence ${cc.venc ? new Date(cc.venc+'T12:00:00').toLocaleDateString('pt-BR') : ''}</div>
+          <div class="cc-total">${fmt(total)}</div>
+          <button class="cc-del" onclick="delCartao(${ci})">✕</button>
+        </div>
+        <div class="cc-items">${items||'<div class="empty" style="padding:0.5rem 0">Nenhuma despesa</div>'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Calcula o saldo acumulado até o mês anterior (encadeando meses)
+  function getSaldoAcumulado(targetYear, targetMonth) {
+    // Começa do saldo inicial guardado
+    let saldo = userData.saldo_mae || 0;
+
+    // Encontra o mês mais antigo com dados
+    const todosOsMeses = Object.keys(userData.mae || {}).map(k => {
+      const [y, m] = k.split('-').map(Number);
+      return { y, m, key: k };
+    }).sort((a, b) => a.y !== b.y ? a.y - b.y : a.m - b.m);
+
+    if (!todosOsMeses.length) return saldo;
+
+    const inicio = todosOsMeses[0];
+
+    // Percorre cada mês desde o início até o mês ANTERIOR ao atual
+    let cy = inicio.y, cm = inicio.m;
+    while (cy < targetYear || (cy === targetYear && cm < targetMonth)) {
+      const key = `${cy}-${cm}`;
+      const md = userData.mae[key];
+      if (md) {
+        const r = (md.receitas || []).reduce((s, i) => s + i.val, 0);
+        const d = (md.despesas || []).filter(i => isActive(i, cy, cm)).reduce((s, i) => s + i.val, 0);
+        saldo = saldo + r - d;
+      }
+      // avança um mês
+      cm++;
+      if (cm > 11) { cm = 0; cy++; }
+      // segurança para não loop infinito
+      if (cy > targetYear + 1) break;
+    }
+    return saldo;
+  }
+
+  // ── RENDER MAE ─────────────────────────────────────────
+  function renderMae() {
+    const md=getMD('mae');
+    const y=ST.mae.year, m=ST.mae.month;
+    document.getElementById('mae-mes').textContent=`${MESES[m]} ${y}`;
+    const totalR=md.receitas.reduce((s,i)=>s+i.val,0);
+    const despesasAtivas=md.despesas.filter(i=>isActive(i,y,m));
+    const totalD=despesasAtivas.reduce((s,i)=>s+i.val,0);
+
+    // Saldo acumulado até o mês anterior (sobra dos meses anteriores)
+    const sgAcumulado = getSaldoAcumulado(y, m);
+    const totalSobrou = sgAcumulado + totalR - totalD;
+    const totalRComGuardado = sgAcumulado + totalR;
+
+    document.getElementById('mae-metrics').innerHTML=`
+      <div class="metric"><div class="lbl">Receitas + Guardado</div><div class="val v-green">${fmt(totalRComGuardado)}</div></div>
+      <div class="metric"><div class="lbl">Despesas</div><div class="val v-red">${fmt(totalD)}</div></div>
+      <div class="metric"><div class="lbl">Total que sobrou</div><div class="val ${totalSobrou>=0?'v-green':'v-red'}">${fmt(totalSobrou)}</div></div>`;
+    document.getElementById('mae-receitas').innerHTML=!md.receitas.length
+      ?'<div class="empty">Nenhuma receita registrada</div>'
+      :md.receitas.map(i=>`<div class="exp-item"><div class="exp-dot" style="background:var(--green)"></div><div class="exp-info"><div class="exp-name">${esc(i.desc)}</div></div><span class="exp-val" style="color:var(--green)">${fmt(i.val)}</span><button class="exp-del" onclick="delEntry('mae','receita',${i.id})">✕</button></div>`).join('<div class="divider"></div>');
+    document.getElementById('mae-despesas').innerHTML=!md.despesas.length
+      ?'<div class="empty">Nenhuma despesa registrada</div>'
+      :md.despesas.map(i=>renderExpItem(i,'mae')).join('<div class="divider"></div>');
+    renderBars('mae', despesasAtivas, totalD);
+    document.getElementById('saldo-display').textContent=fmt(sgAcumulado);
+    document.getElementById('saldo-total-display').textContent=fmt(totalSobrou);
+    document.getElementById('saldo-calc').textContent=`${fmt(sgAcumulado)} acumulado + ${fmt(totalR)} receitas − ${fmt(totalD)} despesas`;
+  }
+
+  // ── NAV ────────────────────────────────────────────────
+  window.showMain = (t) => {
+    document.querySelectorAll('.main-tab').forEach(el=>el.classList.remove('active'));
+    document.getElementById(`mtab-${t}`).classList.add('active');
+    document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+    document.getElementById(`sec-${t}`).classList.add('active');
+    if(t==='minha') renderMinha(); else renderMae();
+  };
+
+  window.showSub = (t) => {
+    document.querySelectorAll('.sub-tab').forEach(el=>el.classList.remove('active'));
+    document.getElementById(`stab-${t}`).classList.add('active');
+    document.querySelectorAll('.sub-section').forEach(el=>el.classList.remove('active'));
+    document.getElementById(`sub-${t}`).classList.add('active');
+    if(t==='cartoes') renderCartoes();
+  };
+
+  window.changeMonth = (p,dir) => {
+    let m=ST[p].month+dir,y=ST[p].year;
+    if(m<0){m=11;y--;} if(m>11){m=0;y++;}
+    ST[p].month=m; ST[p].year=y;
+    if(p==='minha') renderMinha(); else renderMae();
+  };
+
+  // ── MODAL LANÇAMENTO ───────────────────────────────────
+  window.openModal = (p,tipo) => {
+    modalCtx={p,tipo};
+    document.getElementById('modal-title').textContent=tipo==='receita'?'Adicionar receita':'Adicionar despesa';
+    document.getElementById('fg-cat').style.display=tipo==='despesa'?'block':'none';
+    document.getElementById('fg-volatil-toggle').style.display=tipo==='despesa'?'flex':'none';
+    document.getElementById('fg-cartao-toggle').style.display=tipo==='despesa'&&p==='minha'?'flex':'none';
+    document.getElementById('fg-cartao-sel').style.display='none';
+    document.getElementById('fg-termino').style.display='none';
+    document.getElementById('inp-volatil').checked=false;
+    document.getElementById('inp-cartao').checked=false;
+    document.getElementById('fg-recorrente-toggle').style.display=tipo==='despesa'?'flex':'none';
+    document.getElementById('inp-recorrente').checked=false;
+    document.getElementById('inp-desc').value='';
+    document.getElementById('inp-val').value='';
+    document.getElementById('inp-termino').value='';
+    // popular select de cartões
+    const sel=document.getElementById('inp-cartao-sel');
+    sel.innerHTML=(userData.cartoes||[]).map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+    document.getElementById('entry-overlay').classList.add('open');
+    setTimeout(()=>document.getElementById('inp-desc').focus(),60);
+  };
+  window.closeModal = () => document.getElementById('entry-overlay').classList.remove('open');
+  window.toggleVolatil = () => {
+    document.getElementById('fg-termino').style.display=document.getElementById('inp-volatil').checked?'block':'none';
+  };
+  window.toggleCartao = () => {
+    document.getElementById('fg-cartao-sel').style.display=document.getElementById('inp-cartao').checked?'block':'none';
+  };
+
+  window.saveEntry = async () => {
+    const desc=document.getElementById('inp-desc').value.trim();
+    const val=parseFloat(document.getElementById('inp-val').value);
+    if(!desc||!val||val<=0) return;
+    const {p,tipo}=modalCtx;
+    const id=Date.now();
+    const volatil=document.getElementById('inp-volatil').checked;
+    const termino=volatil?document.getElementById('inp-termino').value:'';
+    const cat=document.getElementById('inp-cat').value;
+    const recorrente=tipo==='despesa'&&document.getElementById('inp-recorrente').checked;
+    const isCartao=tipo==='despesa'&&p==='minha'&&document.getElementById('inp-cartao').checked;
+
+    if(isCartao) {
+      const ccId=parseInt(document.getElementById('inp-cartao-sel').value);
+      const cc=userData.cartoes.find(c=>c.id===ccId);
+      if(cc) cc.despesas.push({id,desc,val,cat,volatil,termino,recorrente});
+    } else {
+      if(recorrente) {
+        // Salva nas despesas recorrentes globais, não no mês específico
+        if(!userData.recorrentes) userData.recorrentes={};
+        if(!userData.recorrentes[p]) userData.recorrentes[p]=[];
+        userData.recorrentes[p].push({id,desc,val,cat,volatil,termino});
+      } else {
+        const md=getMD(p);
+        if(tipo==='receita') md.receitas.push({id,desc,val});
+        else md.despesas.push({id,desc,val,cat,volatil,termino});
+      }
+    }
+    closeModal();
+    if(p==='minha') renderMinha(); else renderMae();
+    await save();
+  };
+
+  window.delRecorrente = async (p,id) => {
+    if(userData.recorrentes&&userData.recorrentes[p])
+      userData.recorrentes[p]=userData.recorrentes[p].filter(i=>i.id!==id);
+    if(p==='minha') renderMinha(); else renderMae();
+    await save();
+  };
+
+  window.delCCDespesa = async (ci,di) => {
+    userData.cartoes[ci].despesas.splice(di,1);
+    renderMinha(); await save();
+  };
+
+  window.delEntry = async (p,tipo,id) => {
+    const md=getMD(p);
+    if(tipo==='receita') md.receitas=md.receitas.filter(i=>i.id!=id);
+    else md.despesas=md.despesas.filter(i=>i.id!=id);
+    if(p==='minha') renderMinha(); else renderMae();
+    await save();
+  };
+
+  // ── MODAL CARTÃO ───────────────────────────────────────
+  window.openCartaoModal = () => {
+    renderCartaoManageList();
+    document.getElementById('cc-nome').value='';
+    document.getElementById('cc-venc').value='';
+    document.getElementById('cartao-overlay').classList.add('open');
+  };
+  window.closeCartaoModal = () => document.getElementById('cartao-overlay').classList.remove('open');
+
+  function renderCartaoManageList() {
+    const el=document.getElementById('cartoes-manage-list');
+    if(!userData.cartoes||!userData.cartoes.length){el.innerHTML='<div class="empty">Nenhum cartão cadastrado</div>';return;}
+    el.innerHTML=userData.cartoes.map((cc,ci)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+        <div style="width:32px;height:22px;border-radius:5px;background:${cc.cor};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff">${esc(cc.nome).substring(0,2).toUpperCase()}</div>
+        <div style="flex:1;font-size:13px;font-weight:500">${esc(cc.nome)}</div>
+        <div style="font-size:11px;color:var(--text3)">Vence ${cc.venc?new Date(cc.venc+'T12:00:00').toLocaleDateString('pt-BR'):''}</div>
+        <button class="exp-del" onclick="delCartao(${ci})">✕</button>
+      </div>`).join('');
+  }
+  window.saveCartao = async () => {
+    const nome=document.getElementById('cc-nome').value.trim();
+    const venc=document.getElementById('cc-venc').value;
+    const cor=document.getElementById('cc-cor').value;
+    if(!nome||!venc) { alert('Preencha o nome e a data de vencimento.'); return; }
+    if(!userData.cartoes) userData.cartoes=[];
+    userData.cartoes.push({id:Date.now(),nome,venc,cor,despesas:[]});
+    document.getElementById('cc-nome').value='';
+    document.getElementById('cc-venc').value='';
+    renderCartaoManageList(); await save();
+  };
+  window.delCartao = async (ci) => {
+    userData.cartoes.splice(ci,1);
+    renderCartaoManageList(); renderMinha(); await save();
+  };
+
+  // ── MODAL DESPESA CARTÃO ───────────────────────────────
+  window.openCCEntry = (ci) => {
+    ccEntryCtx={ci};
+    document.getElementById('cc-desc').value='';
+    document.getElementById('cc-val').value='';
+    document.getElementById('cc-volatil').checked=false;
+    document.getElementById('fg-cc-termino').style.display='none';
+    document.getElementById('cc-termino').value='';
+    document.getElementById('cc-entry-overlay').classList.add('open');
+    setTimeout(()=>document.getElementById('cc-desc').focus(),60);
+  };
+  window.closeCCEntry = () => document.getElementById('cc-entry-overlay').classList.remove('open');
+  window.toggleCCVolatil = () => {
+    document.getElementById('fg-cc-termino').style.display=document.getElementById('cc-volatil').checked?'block':'none';
+  };
+  window.saveCCEntry = async () => {
+    const desc=document.getElementById('cc-desc').value.trim();
+    const val=parseFloat(document.getElementById('cc-val').value);
+    if(!desc||!val||val<=0) return;
+    const volatil=document.getElementById('cc-volatil').checked;
+    const termino=volatil?document.getElementById('cc-termino').value:'';
+    const cat=document.getElementById('cc-cat').value;
+    userData.cartoes[ccEntryCtx.ci].despesas.push({id:Date.now(),desc,val,cat,volatil,termino});
+    closeCCEntry(); renderCartoes(); renderMinha(); await save();
+  };
+  window.delCCDespesa = async (ci,di) => {
+    userData.cartoes[ci].despesas.splice(di,1); renderCartoes(); renderMinha(); await save();
+  };
+
+  // ── SALDO MAE ──────────────────────────────────────────
+  window.openSaldo = () => {
+    document.getElementById('saldo-inp').value=userData.saldo_mae||0;
+    document.getElementById('saldo-overlay').classList.add('open');
+    setTimeout(()=>document.getElementById('saldo-inp').focus(),60);
+  };
+  window.closeSaldo = () => document.getElementById('saldo-overlay').classList.remove('open');
+  window.saveSaldo = async () => {
+    userData.saldo_mae=parseFloat(document.getElementById('saldo-inp').value)||0;
+    closeSaldo(); renderMae(); await save();
+  };
+
+  // ── TEMA ───────────────────────────────────────────────
+  function applyTheme(dark) {
+    document.documentElement.setAttribute('data-theme',dark?'dark':'');
+    document.getElementById('theme-btn').textContent=dark?'☀ Tema':'☾ Tema';
+    localStorage.setItem('ff_theme',dark?'dark':'light');
+  }
+  document.getElementById('theme-btn').onclick=()=>applyTheme(document.documentElement.getAttribute('data-theme')!=='dark');
+  const t=localStorage.getItem('ff_theme');
+  if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)) applyTheme(true);
+
+  // ── RESERVAS ───────────────────────────────────────────
+  let reservaCtx = {};
+
+  function renderReservas() {
+    const el = document.getElementById('reservas-list');
+    if (!el) return;
+    const reservas = userData.reservas || [];
+    if (!reservas.length) { el.innerHTML = '<div class="empty">Nenhuma reserva criada ainda</div>'; return; }
+    el.innerHTML = reservas.map((r, ri) => {
+      const total = (r.depositos||[]).reduce((s,d) => s+d.val, 0);
+      const deps = (r.depositos||[]).sort((a,b) => a.mes > b.mes ? -1 : 1).map((d, di) => `
+        <div class="dep-item">
+          <span class="dep-mes">${fmtMes(d.mes)}</span>
+          <span class="dep-val">${fmt(d.val)}</span>
+          <button class="dep-del" onclick="delDeposito(${ri},${di})">✕</button>
+        </div>`).join('');
+      return `<div class="reserva-item">
+        <div class="reserva-header">
+          <div class="reserva-icon" style="background:${r.cor||'#1D9E75'}">${esc(r.nome).substring(0,2).toUpperCase()}</div>
+          <div class="reserva-nome">${esc(r.nome)}</div>
+          <div class="reserva-total">${fmt(total)}</div>
+          <button class="add-btn" style="font-size:11px;padding:3px 10px;" onclick="openDepositoModal(${ri})">+ Depósito</button>
+          <button class="reserva-del" onclick="delReserva(${ri})">✕</button>
+        </div>
+        ${deps ? `<div class="reserva-depositos">${deps}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function fmtMes(mesStr) {
+    if (!mesStr) return '';
+    const [y, m] = mesStr.split('-').map(Number);
+    return `${MESES[m-1]} ${y}`;
+  }
+
+  window.openReservaModal = () => {
+    document.getElementById('res-nome').value = '';
+    document.getElementById('reserva-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('res-nome').focus(), 60);
+  };
+  window.closeReservaModal = () => document.getElementById('reserva-overlay').classList.remove('open');
+  window.saveReserva = async () => {
+    const nome = document.getElementById('res-nome').value.trim();
+    const cor = document.getElementById('res-cor').value;
+    if (!nome) return;
+    if (!userData.reservas) userData.reservas = [];
+    userData.reservas.push({ id: Date.now(), nome, cor, depositos: [] });
+    closeReservaModal(); renderReservas(); await save();
+  };
+  window.delReserva = async (ri) => {
+    userData.reservas.splice(ri, 1); renderReservas(); await save();
+  };
+
+  window.openDepositoModal = (ri) => {
+    reservaCtx = { ri };
+    document.getElementById('deposito-title').textContent = `Depósito — ${userData.reservas[ri].nome}`;
+    document.getElementById('dep-val').value = '';
+    const y = ST.minha.year;
+    const m = String(ST.minha.month + 1).padStart(2, '0');
+    document.getElementById('dep-mes').value = `${y}-${m}`;
+    document.getElementById('deposito-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('dep-val').focus(), 60);
+  };
+  window.closeDepositoModal = () => document.getElementById('deposito-overlay').classList.remove('open');
+  window.saveDeposito = async () => {
+    const val = parseFloat(document.getElementById('dep-val').value);
+    const mes = document.getElementById('dep-mes').value;
+    if (!val || val <= 0 || !mes) return;
+    userData.reservas[reservaCtx.ri].depositos.push({ id: Date.now(), val, mes });
+    closeDepositoModal(); renderReservas(); await save();
+  };
+  window.delDeposito = async (ri, di) => {
+    userData.reservas[ri].depositos.splice(di, 1); renderReservas(); await save();
+  };
+
+  // ── TECLADO / FECHAR ───────────────────────────────────
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      document.getElementById('entry-overlay').classList.remove('open');
+      document.getElementById('cartao-overlay').classList.remove('open');
+      document.getElementById('saldo-overlay').classList.remove('open');
+      document.getElementById('reserva-overlay').classList.remove('open');
+      document.getElementById('deposito-overlay').classList.remove('open');
+    }
+    if(e.key==='Enter'&&document.getElementById('auth-screen').style.display!=='none') doAuth();
+  });
+  ['entry-overlay','cartao-overlay','saldo-overlay','reserva-overlay','deposito-overlay'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('click',e=>{ if(e.target.id===id) el.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>
